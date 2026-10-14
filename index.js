@@ -40,9 +40,20 @@ const run = async () => {
 }
 run().catch(console.dre);
 
+// GET ROOMS API
 app.get('/studynook', async (req, res) => {
-    const data = await studentColl.find().limite(5)
+    const data = await studentColl.find()
     const result = await data.toArray()
+    res.send(result);
+})
+
+// GET ONE ROOMS API
+app.get(`/studynook/:id`, async (req, res) => {
+    const { id } = req.params;
+    const data = await studentColl.findOne({
+        _id : new ObjectId(id)
+    })
+    const result = await data;
     res.send(result)
 })
 
