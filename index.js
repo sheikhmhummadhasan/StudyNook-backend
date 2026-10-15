@@ -75,18 +75,7 @@ app.delete('/sturdynook/:id', async (req, res) => {
 })
 
 // UPDATE API
-app.patch('/sturdynook/:id', async(req, res)=>{
-    const {id} = req.params;
-    const filter = {
-        _id : new ObjectId(id)
-    };
-    const modFilter = req.body;
-    const updateDoc = {
-        $set:modFilter
-    };
-    const result = await studentColl.updateOne(filter, updateDoc);
-    res.send(result);
-})
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
