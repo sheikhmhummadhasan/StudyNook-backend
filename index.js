@@ -40,6 +40,25 @@ const run = async () => {
 }
 run().catch(console.dre);
 
+const verifyToken = async (req, res, next) => {
+    const header = req?.headers.authorization;
+    console.log(header)
+    if (!header) {
+        res.status(401).json({ message: 'unaythorized missing token' })
+    }
+    const token = header.split(" ")[1]
+    if (!token) {
+        res.status(401).json({ message: 'unaythorized invalid token' })
+    }
+    console.log(token)
+    try {
+        const { paylode } = await jwtVerify(token, JWKS)
+        next()
+    }catch{ 
+        return res.status(401).json({message : 'unexpectedToken'})
+    }
+}
+
 // GET ROOMS API
 app.get('/studynook', async (req, res) => {
     const data = await studentColl.find()
@@ -48,7 +67,7 @@ app.get('/studynook', async (req, res) => {
 })
 
 // GET ONE ROOMS API
-app.get(`/studynook/:id`, async (req, res) => {
+app.get(`/studynook/:id`,verifyToken, async (req, res) => {
     const { id } = req.params;
     const data = await studentColl.findOne({
         _id : new ObjectId(id)
@@ -58,14 +77,14 @@ app.get(`/studynook/:id`, async (req, res) => {
 })
 
 // POST ONE DATA API
-app.post('/studynook', async(req, res)=>{
+app.post('/studynook',verifyToken, async(req, res)=>{
     const data = req.body;
     const postData = await studentColl.insertOne(data);
     res.send(postData);
 })
 
 // DELETE API
-app.delete('/studynook/:id', async (req, res) => {
+app.delete('/studynook/:id',verifyToken, async (req, res) => {
     const {id} = req.params;
       const data = await studentColl.findOne({
         _id : new ObjectId(id)
@@ -75,7 +94,7 @@ app.delete('/studynook/:id', async (req, res) => {
 })
 
 // UPDATE API
-app.patch('/studynook/:id', async(req, res)=>{
+app.patch('/studynook/:id',verifyToken, async(req, res)=>{
     const {id} = req.params;
     const filter = {
         _id : new ObjectId(id),
