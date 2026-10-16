@@ -58,14 +58,14 @@ app.get(`/studynook/:id`, async (req, res) => {
 })
 
 // POST ONE DATA API
-app.post('/sturdynook', async(req, res)=>{
+app.post('/studynook', async(req, res)=>{
     const data = req.body;
     const postData = await studentColl.insertOne(data);
     res.send(postData);
 })
 
 // DELETE API
-app.delete('/sturdynook/:id', async (req, res) => {
+app.delete('/studynook/:id', async (req, res) => {
     const {id} = req.params;
       const data = await studentColl.findOne({
         _id : new ObjectId(id)
@@ -75,7 +75,18 @@ app.delete('/sturdynook/:id', async (req, res) => {
 })
 
 // UPDATE API
-
+app.patch('/studynook/:id', async(req, res)=>{
+    const {id} = req.params;
+    const filter = {
+        _id : new ObjectId(id),
+    };
+    const modFilter = req.body;
+    const updateDoc = {
+        $set:modFilter
+    };
+    const result = await studentColl.updateOne(filter, updateDoc);
+    res.send(result);
+})
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
