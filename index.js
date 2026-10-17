@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 
 const db = client.db('sturdynook');
 const studentColl = db.collection('rooms');
-// const bookingColl = db.collection('booking')
+const bookingColl = db.collection('booking')
 
 const run = async () => {
     try {
@@ -42,7 +42,6 @@ run().catch(console.dre);
 
 const verifyToken = async (req, res, next) => {
     const header = req?.headers.authorization;
-    console.log(header)
     if (!header) {
         res.status(401).json({ message: 'unaythorized missing token' })
     }
@@ -50,7 +49,6 @@ const verifyToken = async (req, res, next) => {
     if (!token) {
         res.status(401).json({ message: 'unaythorized invalid token' })
     }
-    console.log(token)
     try {
         const { paylode } = await jwtVerify(token, JWKS)
         next()
@@ -69,10 +67,10 @@ app.get('/studynook', async (req, res) => {
 // GET ONE ROOMS API
 app.get(`/studynook/:id`,verifyToken, async (req, res) => {
     const { id } = req.params;
-    const data = await studentColl.findOne({
+    console.log(id)
+    const result = await studentColl.findOne({
         _id : new ObjectId(id)
     })
-    const result = await data;
     res.send(result)
 })
 
@@ -104,6 +102,20 @@ app.patch('/studynook/:id',verifyToken, async(req, res)=>{
         $set:modFilter
     };
     const result = await studentColl.updateOne(filter, updateDoc);
+    res.send(result);
+})
+
+// BOOKING POST API
+app.post('/booking', verifyToken, async(req, res) => {
+    const data = await req.body;
+    const result = await bookingColl.insertOne(data)
+    res.send(result);
+})
+
+// BOOKING GET DATA API
+app.get('/booking', verifyToken, async(req, res) => {
+    const data = await bookingColl.find();
+    const result = await data.toArray();
     res.send(result);
 })
 
