@@ -40,17 +40,24 @@ const run = async () => {
 }
 run().catch(console.dre);
 
+const { jwtVerify, createRemoteJWKSet } = require('jose-cjs');
+const JWKS = createRemoteJWKSet(
+    new URL('http://localhost:3000/api/auth/jwks')
+);
+
 const verifyToken = async (req, res, next) => {
     const header = req?.headers.authorization;
+    console.log(header, "authintaction")
     if (!header) {
-        res.status(401).json({ message: 'unaythorized missing token' })
+       return res.status(401).json({ message: 'unaythorized missing token' })
     }
     const token = header.split(" ")[1]
     if (!token) {
-        res.status(401).json({ message: 'unaythorized invalid token' })
+        return res.status(401).json({ message: 'unaythorized invalid token' })
     }
     try {
-        const { paylode } = await jwtVerify(token, JWKS)
+        const { payload } = await jwtVerify(token, JWKS)
+        req.user = payload
         next()
     }catch{ 
         return res.status(401).json({message : 'unexpectedToken'})
