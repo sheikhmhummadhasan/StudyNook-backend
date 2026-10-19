@@ -119,10 +119,36 @@ app.post('/booking', verifyToken, async(req, res) => {
     res.send(result);
 })
 
-// BOOKING GET DATA API
-app.get('/booking', verifyToken, async(req, res) => {
-    const data = await bookingColl.find();
-    const result = await data.toArray();
+// GET BOOKING DATA API
+app.get('/booking', async(req, res) => {
+    const data = await bookingColl.find().toArray();
+    res.send(data)
+})
+
+// DELETE BOOKING DATA API
+app.delete('/booking/:id', verifyToken, async (req, res) => {
+    const {id} = req.params;
+    const quire = await bookingColl.findOne(
+        {
+            _id : new ObjectId(id)
+        }
+    )
+    const result = await bookingColl.deleteOne(quire);
+    res.send(result)
+})
+
+// BOOKING CANCEL / UPDATE DATA API
+app.patch('/booking/:id', verifyToken, async(req, res) => {
+    const {id} = req.params;
+    const filter = {
+        _id : new ObjectId(id)
+    }
+    const modFilter = {
+        $set : {
+            status : 'Cancelled'
+        }
+    }
+    const result = await bookingColl.updateOne(filter, modFilter);
     res.send(result);
 })
 
