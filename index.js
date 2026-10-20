@@ -47,7 +47,7 @@ const JWKS = createRemoteJWKSet(
 
 const verifyToken = async (req, res, next) => {
     const header = req?.headers.authorization;
-    console.log(header, "authintaction")
+    // console.log(header, "authintaction")
     if (!header) {
        return res.status(401).json({ message: 'unaythorized missing token' })
     }
