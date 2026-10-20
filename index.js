@@ -26,6 +26,12 @@ const db = client.db('sturdynook');
 const studentColl = db.collection('rooms');
 const bookingColl = db.collection('booking')
 
+const { jwtVerify, createRemoteJWKSet } = require('jose-cjs');
+
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+);
+
 const run = async () => {
     try {
         // TODO:when backend is deployment this line going to commet
@@ -36,18 +42,16 @@ const run = async () => {
     }
     finally {
         // await client.close()
+        
     }
 }
 run().catch(console.dre);
 
-const { jwtVerify, createRemoteJWKSet } = require('jose-cjs');
-const JWKS = createRemoteJWKSet(
-    new URL('http://localhost:3000/api/auth/jwks')
-);
+
 
 const verifyToken = async (req, res, next) => {
     const header = req?.headers.authorization;
-    // console.log(header, "authintaction")
+
     if (!header) {
        return res.status(401).json({ message: 'unaythorized missing token' })
     }
@@ -56,11 +60,12 @@ const verifyToken = async (req, res, next) => {
         return res.status(401).json({ message: 'unaythorized invalid token' })
     }
     try {
-        const { payload } = await jwtVerify(token, JWKS)
-        req.user = payload
-        next()
-    }catch{ 
-        return res.status(401).json({message : 'unexpectedToken'})
+    const { payload } = await jwtVerify(token, JWKS);
+    req.user = payload;
+    next();
+    } catch (error) {
+    console.error("JWT Error:", error.code, error.message);
+    return res.status(401).json({ message: "unexpectedToken" });
     }
 }
 
@@ -74,7 +79,6 @@ app.get('/studynook', async (req, res) => {
 // GET ONE ROOMS API
 app.get(`/studynook/:id`,verifyToken, async (req, res) => {
     const { id } = req.params;
-    console.log(id)
     const result = await studentColl.findOne({
         _id : new ObjectId(id)
     })
