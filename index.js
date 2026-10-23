@@ -25,19 +25,20 @@ const client = new MongoClient(uri, {
 const db = client.db('sturdynook');
 const studentColl = db.collection('rooms');
 const bookingColl = db.collection('booking')
+const listingColl = db.collection('my-listing')
 
 const { jwtVerify, createRemoteJWKSet } = require('jose-cjs');
 
 const JWKS = createRemoteJWKSet(
-  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+  new URL(`http://localhost:3000/api/auth/jwks`)
 );
 
 const run = async () => {
     try {
         // TODO:when backend is deployment this line going to commet
-        // await client.connect();
+        await client.connect();
         // TODO:when backend is deployment this line going to commet
-        // await client.db('admin').command({ ping: 1 })
+        await client.db('admin').command({ ping: 1 })
         console.log("Pinged your deployment!!!!");
     }
     finally {
@@ -51,23 +52,37 @@ run().catch(console.dre);
 
 const verifyToken = async (req, res, next) => {
     const header = req?.headers.authorization;
-
+    
     if (!header) {
-       return res.status(401).json({ message: 'unaythorized missing token' })
+        return res.status(401).json({ message: 'unaythorized missing token' })
     }
+
     const token = header.split(" ")[1]
     if (!token) {
         return res.status(401).json({ message: 'unaythorized invalid token' })
     }
-    try {
+    
     const { payload } = await jwtVerify(token, JWKS);
-    req.user = payload;
     next();
-    } catch (error) {
-    console.error("JWT Error:", error.code, error.message);
-    return res.status(401).json({ message: "unexpectedToken" });
-    }
+
 }
+
+// MY LISTENING API
+
+app.get("/my-listings/:userId", verifyToken, async (req, res) => {
+  const { userId } = req.params;
+  const result = await studentColl.find({ createdBY: userId }).toArray();
+  res.send(result);
+});
+
+// MY BOOKINGS API
+app.get("/mybooking/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const result = await bookingColl.find({ bookedBY: userId }).toArray();
+  res.send(result);
+});
+
+
 
 // GET ROOMS API
 app.get('/studynook', async (req, res) => {
@@ -142,7 +157,7 @@ app.delete('/booking/:id', verifyToken, async (req, res) => {
 })
 
 // BOOKING CANCEL / UPDATE DATA API
-app.patch('/booking/:id', verifyToken, async(req, res) => {
+app.patch('/mybooking/:id', verifyToken, async(req, res) => {
     const {id} = req.params;
     const filter = {
         _id : new ObjectId(id)
