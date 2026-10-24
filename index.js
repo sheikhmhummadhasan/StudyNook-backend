@@ -30,15 +30,15 @@ const listingColl = db.collection('my-listing')
 const { jwtVerify, createRemoteJWKSet } = require('jose-cjs');
 
 const JWKS = createRemoteJWKSet(
-  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+  new URL(`${process.env.LOCAL_URL}/api/auth/jwks`)
 );
 
 const run = async () => {
     try {
         // TODO:when backend is deployment this line going to commet
-        // await client.connect();
+        await client.connect();
         // TODO:when backend is deployment this line going to commet
-        // await client.db('admin').command({ ping: 1 })
+        await client.db('admin').command({ ping: 1 })
         console.log("Pinged your deployment!!!!");
     }
     finally {
@@ -58,6 +58,7 @@ const verifyToken = async (req, res, next) => {
     }
 
     const token = header.split(" ")[1]
+    
     if (!token) {
         return res.status(401).json({ message: 'unaythorized invalid token' })
     }
