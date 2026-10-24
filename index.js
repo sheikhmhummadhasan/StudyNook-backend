@@ -36,9 +36,9 @@ const JWKS = createRemoteJWKSet(
 const run = async () => {
     try {
         // TODO:when backend is deployment this line going to commet
-        await client.connect();
+        // await client.connect();
         // TODO:when backend is deployment this line going to commet
-        await client.db('admin').command({ ping: 1 })
+        // await client.db('admin').command({ ping: 1 })
         console.log("Pinged your deployment!!!!");
     }
     finally {
