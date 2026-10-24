@@ -30,7 +30,7 @@ const listingColl = db.collection('my-listing')
 const { jwtVerify, createRemoteJWKSet } = require('jose-cjs');
 
 const JWKS = createRemoteJWKSet(
-  new URL(`http://localhost:3000/api/auth/jwks`)
+  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
 );
 
 const run = async () => {
