@@ -36,9 +36,9 @@ const JWKS = createRemoteJWKSet(
 const run = async () => {
     try {
         // TODO:when backend is deployment this line going to commet
-        await client.connect();
+        // await client.connect();
         // TODO:when backend is deployment this line going to commet
-        await client.db('admin').command({ ping: 1 })
+        // await client.db('admin').command({ ping: 1 })
         console.log("Pinged your deployment!!!!");
     }
     finally {
@@ -77,7 +77,7 @@ app.get("/my-listings/:userId", verifyToken, async (req, res) => {
 });
 
 // MY BOOKINGS API
-app.get("/mybooking/:userId", async (req, res) => {
+app.get("/mybooking/:userId",verifyToken, async (req, res) => {
   const { userId } = req.params;
   const result = await bookingColl.find({ bookedBY: userId }).toArray();
   res.send(result);
